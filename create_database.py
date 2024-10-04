@@ -2,7 +2,7 @@ import sqlite3
 
 # Функция для подключения к базе данных
 def connect_to_db():
-    conn = sqlite3.connect('freedom_project.db')
+    conn = sqlite3.connect('project_freedom.db')
     return conn
 
 # Функция для создания таблицы, если она еще не существует
@@ -18,6 +18,7 @@ def create_table():
                       )''')
     conn.commit()
     conn.close()
+    print("Table created successfully.")
 
 # Функция для добавления записи в таблицу
 def add_contributor(name, role, contribution):
@@ -28,6 +29,7 @@ def add_contributor(name, role, contribution):
                       VALUES (?, ?, ?)''', (name, role, contribution))
     conn.commit()
     conn.close()
+    print(f"Contributor {name} added successfully.")
 
 # Функция для получения всех данных из таблицы
 def get_all_contributors():
@@ -49,6 +51,7 @@ def update_contributor(contributor_id, name, role, contribution):
                       WHERE id = ?''', (name, role, contribution, contributor_id))
     conn.commit()
     conn.close()
+    print(f"Contributor {contributor_id} updated successfully.")
 
 # Функция для удаления записи
 def delete_contributor(contributor_id):
@@ -58,6 +61,7 @@ def delete_contributor(contributor_id):
     cursor.execute('DELETE FROM contributors WHERE id = ?', (contributor_id,))
     conn.commit()
     conn.close()
+    print(f"Contributor {contributor_id} deleted successfully.")
 
 # Основная функция, которая проверяет работу
 def main():
@@ -86,3 +90,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
