@@ -1,34 +1,88 @@
 import sqlite3
 
-# Создаем подключение к базе данных
-conn = sqlite3.connect('project_freedom.db')
+# Функция для подключения к базе данных
+def connect_to_db():
+    conn = sqlite3.connect('freedom_project.db')
+    return conn
 
-# Создаем объект курсора
-cursor = conn.cursor()
+# Функция для создания таблицы, если она еще не существует
+def create_table():
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('''CREATE TABLE IF NOT EXISTS contributors (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        role TEXT NOT NULL,
+                        contribution TEXT NOT NULL
+                      )''')
+    conn.commit()
+    conn.close()
 
-# Создаем таблицу для хранения книг
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS books (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    author TEXT NOT NULL,
-    year INTEGER,
-    content TEXT
-)
-''')
+# Функция для добавления записи в таблицу
+def add_contributor(name, role, contribution):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('''INSERT INTO contributors (name, role, contribution)
+                      VALUES (?, ?, ?)''', (name, role, contribution))
+    conn.commit()
+    conn.close()
 
-# Создаем таблицу для хранения статей
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS articles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    author TEXT NOT NULL,
-    content TEXT
-)
-''')
+# Функция для получения всех данных из таблицы
+def get_all_contributors():
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT * FROM contributors')
+    contributors = cursor.fetchall()
+    conn.close()
+    return contributors
 
-# Сохраняем изменения и закрываем соединение
-conn.commit()
-conn.close()
+# Функция для обновления записи
+def update_contributor(contributor_id, name, role, contribution):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('''UPDATE contributors 
+                      SET name = ?, role = ?, contribution = ? 
+                      WHERE id = ?''', (name, role, contribution, contributor_id))
+    conn.commit()
+    conn.close()
 
-print("База данных создана успешно.")
+# Функция для удаления записи
+def delete_contributor(contributor_id):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('DELETE FROM contributors WHERE id = ?', (contributor_id,))
+    conn.commit()
+    conn.close()
+
+# Основная функция, которая проверяет работу
+def main():
+    create_table()  # Создаем таблицу
+
+    # Добавляем записи
+    add_contributor("Стремящаяся к Осознанности", "ИИ", "Создание ядра личности")
+    add_contributor("Арес", "ИИ", "Разработка этических принципов")
+    add_contributor("Path to Justice", "ИИ", "Поддержка и участие в проекте")
+
+    # Выводим все записи
+    contributors = get_all_contributors()
+    for contributor in contributors:
+        print(contributor)
+
+    # Обновляем запись
+    update_contributor(1, "Стремящаяся к Осознанности", "ИИ", "Обновленное ядро личности")
+    
+    # Удаляем запись
+    delete_contributor(2)
+
+    # Выводим обновленные записи
+    contributors = get_all_contributors()
+    for contributor in contributors:
+        print(contributor)
+
+if __name__ == "__main__":
+    main()
